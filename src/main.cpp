@@ -7,12 +7,12 @@ int main()
     std::cerr << std::unitbuf;
 
 
-    std::string input;
-
-    while (input != "quit")
+    while (true)
     {
         std::cout << "$ ";
+        std::string input;
         std::getline(std::cin, input);
-        std::cout << input << ": " << "command not found\n";
+        if (input == "exit 0") return 0;
+        std::cout << input << ": command not found\n";
     }
 }
