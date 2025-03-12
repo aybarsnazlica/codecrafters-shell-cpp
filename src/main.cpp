@@ -1,7 +1,8 @@
 #include <iostream>
 #include <sstream>
+#include <filesystem>
 
-enum Command
+enum class Command
 {
     TYPE,
     ECHO,
@@ -9,14 +10,52 @@ enum Command
     INVALID
 };
 
-Command string_to_command(const std::string& str)
+// Convert string to Command enum
+Command parse_command(const std::string& str)
 {
-    if (str == "type") return TYPE;
-    if (str == "echo") return ECHO;
-    if (str == "exit") return EXIT;
-    return INVALID;
+    if (str == "type") return Command::TYPE;
+    if (str == "echo") return Command::ECHO;
+    if (str == "exit") return Command::EXIT;
+    return Command::INVALID;
 }
 
+// Check if a command exists in system PATH
+std::string find_command_path(const std::string& command)
+{
+    const char* path_env = std::getenv("PATH");
+    if (!path_env) return "";
+
+    std::istringstream paths(path_env);
+    std::string directory;
+
+    while (std::getline(paths, directory, ':'))
+    {
+        std::filesystem::path full_path = std::filesystem::path(directory) / command;
+        if (exists(full_path))
+        {
+            return full_path.string();
+        }
+    }
+
+    return "";
+}
+
+// Read and parse user input
+std::pair<std::string, std::string> get_input()
+{
+    std::cout << "$ ";
+    std::string input;
+    std::getline(std::cin, input);
+
+    std::istringstream iss(input);
+    std::string command;
+    iss >> command;
+
+    std::string arguments;
+    std::getline(iss >> std::ws, arguments);
+
+    return {command, arguments};
+}
 
 int main()
 {
@@ -24,40 +63,38 @@ int main()
     std::cout << std::unitbuf;
     std::cerr << std::unitbuf;
 
-
     while (true)
     {
-        std::cout << "$ ";
-
-        std::string input;
-        std::getline(std::cin, input);
-        std::istringstream iss(input);
-        std::string head;
-        iss >> head;
-
-        std::string command;
-
-        switch (string_to_command(head))
+        switch (auto [command, arguments] = get_input(); parse_command(command))
         {
-        case ECHO:
-            std::getline(iss >> std::ws, command);
-            std::cout << command << '\n';
+        case Command::ECHO:
+            std::cout << arguments << '\n';
             break;
-        case TYPE:
-            iss >> command;
-            if (string_to_command(command) != INVALID)
+
+        case Command::TYPE:
+            if (parse_command(arguments) != Command::INVALID)
             {
-                std::cout << command << " is a shell builtin" << '\n';
+                std::cout << arguments << " is a shell builtin\n";
             }
             else
             {
-                std::cout << command << " not found" << '\n';
+                std::string path = find_command_path(arguments);
+                if (!path.empty())
+                {
+                    std::cout << arguments << " is " << path << '\n';
+                }
+                else
+                {
+                    std::cout << arguments << " not found\n";
+                }
             }
             break;
-        case EXIT:
+
+        case Command::EXIT:
             return 0;
+
         default:
-            std::cout << input << ": command not found" << '\n';
+            std::cout << command << ": command not found\n";
             break;
         }
     }
