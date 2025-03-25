@@ -1,5 +1,7 @@
 #include <iostream>
 #include <sstream>
+#include <filesystem>
+
 #include "shell.hpp"
 
 int main()
@@ -17,6 +19,13 @@ int main()
         case Command::ECHO:
             std::cout << arguments << '\n';
             break;
+
+        case Command::PWD:
+            {
+                std::string cwd = std::filesystem::current_path().string();
+                std::cout << cwd << '\n';
+                break;
+            }
 
         case Command::TYPE:
             {

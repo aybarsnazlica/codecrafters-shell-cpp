@@ -8,6 +8,7 @@ enum class Command
 {
     TYPE,
     ECHO,
+    PWD,
     EXIT,
     CUSTOM
 };

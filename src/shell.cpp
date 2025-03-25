@@ -8,6 +8,7 @@ Command parse_command(const std::string& str)
 {
     if (str == "type") return Command::TYPE;
     if (str == "echo") return Command::ECHO;
+    if (str == "pwd") return Command::PWD;
     if (str == "exit") return Command::EXIT;
     return Command::CUSTOM;
 }
@@ -24,7 +25,7 @@ std::optional<std::string> find_command_path(const std::string& command)
     while (std::getline(paths, directory, ':'))
     {
         std::filesystem::path full_path = std::filesystem::path(directory) / command;
-        if (std::filesystem::exists(full_path))
+        if (exists(full_path))
         {
             return full_path.string();
         }
@@ -54,8 +55,8 @@ void execute_custom_command(const std::string& command, const std::string& argum
 {
     if (auto path = find_command_path(command))
     {
-        std::string command_name = std::filesystem::path(*path).filename().string();
-        std::string full_command = command_name + " " + arguments;
+        const std::string command_name = std::filesystem::path(*path).filename().string();
+        const std::string full_command = command_name + " " + arguments;
 
         int ret_code = std::system(full_command.c_str());
         if (ret_code == -1)
