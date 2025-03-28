@@ -9,6 +9,7 @@ enum class Command
     TYPE,
     ECHO,
     PWD,
+    CD,
     EXIT,
     CUSTOM
 };

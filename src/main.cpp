@@ -26,7 +26,18 @@ int main()
                 std::cout << cwd << '\n';
                 break;
             }
-
+        case Command::CD:
+            {
+                if (std::filesystem::exists(arguments))
+                {
+                    std::filesystem::current_path(arguments);
+                }
+                else
+                {
+                    std::cout << command << ": " << arguments << ": No such file or directory" << '\n';
+                }
+            }
+            break;
         case Command::TYPE:
             {
                 if (parse_command(arguments) != Command::CUSTOM)

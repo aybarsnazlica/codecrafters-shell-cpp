@@ -9,6 +9,7 @@ Command parse_command(const std::string& str)
     if (str == "type") return Command::TYPE;
     if (str == "echo") return Command::ECHO;
     if (str == "pwd") return Command::PWD;
+    if (str == "cd") return Command::CD;
     if (str == "exit") return Command::EXIT;
     return Command::CUSTOM;
 }
